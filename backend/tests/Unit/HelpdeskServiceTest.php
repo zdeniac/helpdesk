@@ -62,7 +62,7 @@ class HelpdeskServiceTest extends TestCase
             'answer' => 'Hi there!',
         ]);
 
-        $dto = $this->service->replyToUser($user->id, 'Hello');
+        $dto = $this->service->botReply($user->id, 'Hello');
 
         $this->assertInstanceOf(ConversationDTO::class, $dto);
         $this->assertEquals($user->id, $dto->userId);
@@ -82,7 +82,7 @@ class HelpdeskServiceTest extends TestCase
     {
         $user = $this->user;
 
-        $dto = $this->service->replyToUser($user->id, 'Unknown question');
+        $dto = $this->service->botReply($user->id, 'Unknown question');
 
         $this->assertEquals(ConversationStatus::WAITING_AGENT->value, $dto->status);
         $this->assertEquals('Please contact our colleagues for further answers.', $dto->messages[1]->message);
