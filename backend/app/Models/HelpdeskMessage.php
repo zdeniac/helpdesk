@@ -7,25 +7,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Event extends Model
+class HelpdeskMessage extends Model
 {
     use HasFactory;
     use HasTimestamps;
 
     protected $fillable = [
-        'title',
-        'occurrence',
-        'description',
-        'user_id',
+        'conversation_id',
+        'sender_type',
+        'message',
     ];
 
-    protected $casts = [
-        'occurrence' => 'datetime',
-    ];
-
-
-    public function user(): BelongsTo
+    public function conversation(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Conversation::class);
     }
 }

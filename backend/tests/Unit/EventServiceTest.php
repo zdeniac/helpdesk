@@ -1,7 +1,8 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Unit;
 
+use App\Enums\UserRole;
 use App\Models\Event;
 use App\Models\User;
 use App\Service\EventService;
@@ -21,9 +22,9 @@ class EventServiceTest extends TestCase
         $this->service = new EventService();
     }
 
-    public function test_it_creates_event(): void
+    public function test_creates_event(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => UserRole::USER->value]);
 
         $data = [
             'title' => 'Test event',
@@ -43,19 +44,22 @@ class EventServiceTest extends TestCase
         $this->assertInstanceOf(Event::class, $event);
     }
 
-    public function test_it_returns_all_events(): void
+    public function test_returns_all_events(): void
     {
-        Event::factory()->count(3)->create();
+        User::factory()
+            ->count(1)
+            ->hasEvents(3)
+            ->create(['role' => UserRole::USER->value]);
 
         $events = $this->service->all();
 
         $this->assertCount(3, $events);
     }
 
-    public function test_it_lists_events_by_user(): void
+    public function test_lists_events_by_user(): void
     {
-        $userA = User::factory()->create();
-        $userB = User::factory()->create();
+        $userA = User::factory()->create(['role' => UserRole::USER->value]);
+        $userB = User::factory()->create(['role' => UserRole::USER->value]);
 
         Event::factory()->create([
             'user_id' => $userA->id,
@@ -77,10 +81,13 @@ class EventServiceTest extends TestCase
         $this->assertEquals($userA->id, $events->first()->user_id);
     }
 
-    public function test_it_updates_event_description(): void
+    public function test_updates_event_description(): void
     {
+        $user = User::factory()->create(['role' => UserRole::USER->value]);
+
         $event = Event::factory()->create([
-            'description' => 'Old description'
+            'description' => 'Old description',
+            'user_id' => $user->id
         ]);
 
         $updated = $this->service->update($event->id, ['description' => 'New description']);
@@ -93,9 +100,10 @@ class EventServiceTest extends TestCase
         ]);
     }
 
-    public function test_it_deletes_event(): void
+    public function test_deletes_event(): void
     {
-        $event = Event::factory()->create();
+        $user = User::factory()->create(['role' => UserRole::USER->value]);
+        $event = Event::factory()->create(['user_id' => $user->id]);
 
         $result = $this->service->delete($event->id);
 

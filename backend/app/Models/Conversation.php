@@ -6,26 +6,31 @@ use Illuminate\Database\Eloquent\Concerns\HasTimestamps;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Event extends Model
+class Conversation extends Model
 {
     use HasFactory;
     use HasTimestamps;
 
     protected $fillable = [
-        'title',
-        'occurrence',
-        'description',
         'user_id',
+        'assigned_agent_id',
+        'status',
     ];
-
-    protected $casts = [
-        'occurrence' => 'datetime',
-    ];
-
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function assignedAgent(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_agent_id');
+    }
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(HelpdeskMessage::class);
     }
 }

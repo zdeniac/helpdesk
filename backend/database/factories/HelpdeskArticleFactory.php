@@ -1,0 +1,17 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\HelpdeskArticle;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+class HelpdeskArticleFactory extends Factory
+{
+    public function definition(): array
+    {
+        return [
+            'question' => $this->faker->sentence(),
+            'answer' => $this->faker->paragraph(),
+        ];
+    }
+}
