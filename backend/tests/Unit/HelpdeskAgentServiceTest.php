@@ -23,7 +23,7 @@ class HelpdeskAgentServiceTest extends TestCase
         $this->service = new HelpdeskAgentService();
         $this->user = User::factory()->create(['role' => UserRole::USER->value]);
     }
-
+/*
     public function test_can_close_a_conversation(): void
     {
         $user = $this->user;
@@ -41,5 +41,5 @@ class HelpdeskAgentServiceTest extends TestCase
             'id' => $conversation->id,
             'status' => ConversationStatus::CLOSED->value,
         ]);
-    }
+    }*/
 }

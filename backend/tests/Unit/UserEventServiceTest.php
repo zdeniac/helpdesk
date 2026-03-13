@@ -5,21 +5,22 @@ namespace Tests\Unit;
 use App\Enums\UserRole;
 use App\Models\Event;
 use App\Models\User;
-use App\Services\EventService;
+use App\Services\UserEventService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Collection;
 use Tests\TestCase;
 
-class EventServiceTest extends TestCase
+class UserEventServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    private EventService $service;
+    private UserEventService $service;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new EventService();
+        $this->service = new UserEventService();
     }
 
     public function test_creates_event(): void
@@ -33,7 +34,7 @@ class EventServiceTest extends TestCase
             'user_id' => $user->id,
         ];
 
-        $event = $this->service->create($data);
+        $event = $this->service->createByUser($data, $user->id);
 
         $this->assertDatabaseHas('events', [
             'title' => 'Test event',
@@ -44,15 +45,15 @@ class EventServiceTest extends TestCase
         $this->assertInstanceOf(Event::class, $event);
     }
 
-    public function test_returns_all_events(): void
+    public function test_returns_all_events_for_user(): void
     {
-        User::factory()
+        /** @var Collection $user */
+        $user = User::factory()
             ->count(1)
             ->hasEvents(3)
             ->create(['role' => UserRole::USER->value]);
 
-        $events = $this->service->all();
-
+        $events = $this->service->listByUser($user[0]->id);
         $this->assertCount(3, $events);
     }
 
@@ -81,7 +82,7 @@ class EventServiceTest extends TestCase
         $this->assertEquals($userA->id, $events->first()->user_id);
     }
 
-    public function test_updates_event_description(): void
+    public function test_updates_event(): void
     {
         $user = User::factory()->create(['role' => UserRole::USER->value]);
 
@@ -90,7 +91,7 @@ class EventServiceTest extends TestCase
             'user_id' => $user->id
         ]);
 
-        $updated = $this->service->update($event->id, ['description' => 'New description']);
+        $updated = $this->service->updateByUser($event->id, ['description' => 'New description'], $user->id);
 
         $this->assertEquals('New description', $updated->description);
 
@@ -105,7 +106,7 @@ class EventServiceTest extends TestCase
         $user = User::factory()->create(['role' => UserRole::USER->value]);
         $event = Event::factory()->create(['user_id' => $user->id]);
 
-        $result = $this->service->delete($event->id);
+        $result = $this->service->deleteByUser($event->id, $user->id);
 
         $this->assertTrue($result);
 

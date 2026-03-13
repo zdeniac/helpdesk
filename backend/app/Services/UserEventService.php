@@ -5,29 +5,24 @@ namespace App\Services;
 use App\Models\Event;
 use Illuminate\Database\Eloquent\Collection;
 
-final class EventService
+final class UserEventService
 {
     /**
      * @param array $data ['title' => string, 'occurrence' => datetime, 'description' => string|null, 'user_id' => int]
      */
-    public function create(array $data): Event
+    public function createByUser(array $data, int $userId): Event
     {
         return Event::create([
             'title' => $data['title'],
             'occurrence' => $data['occurrence'],
             'description' => $data['description'] ?? null,
-            'user_id' => $data['user_id'],
+            'user_id' => $userId,
         ]);
     }
 
-    public function all(): Collection
+    public function findByUser(int $eventId, int $userId): Event
     {
-        return Event::all();
-    }
-
-    public function find(int $id): Event
-    {
-        return Event::findOrFail($id);
+        return Event::where(['id' => $eventId, 'user_id' => $userId])->firstOrFail();
     }
 
     public function listByUser(int $userId): Collection
@@ -40,9 +35,9 @@ final class EventService
     /**
      * @throws ModelNotFoundException
      */
-    public function update(int $id, array $data): Event
+    public function updateByUser(int $eventId, array $data, int $userId): Event
     {
-        $event = Event::findOrFail($id);
+        $event = Event::where(['id' => $eventId, 'user_id' => $userId])->firstOrFail();
         $event->update($data);
         return $event;
     }
@@ -50,9 +45,10 @@ final class EventService
     /**
      * @throws ModelNotFoundException
      */
-    public function delete(int $id): bool
+    public function deleteByUser(int $eventId, int $userId): bool
     {
-        $event = Event::findOrFail($id);
-        return $event->delete();
+        $event = Event::where(['id' => $eventId, 'user_id' => $userId])->firstOrFail();
+        $event->delete();
+        return true;
     }
 }

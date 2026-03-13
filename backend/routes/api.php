@@ -5,16 +5,21 @@ use App\Http\Controllers\HelpdeskBotController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EventController;
 
-Route::group(['middleware' => 'api'], function ($routes) {
-        Route::post('/login', [AuthController::class, 'login']);
+Route::group(['middleware' => 'api'], function () {
 
-        Route::group(['auth'], function () {
+    // Public routes
+    Route::post('/login', [AuthController::class, 'login']);
 
-            Route::get('/me', [AuthController::class, 'me']);
-            Route::post('/logout', [AuthController::class, 'logout']);
+    // Authenticated routes
+    Route::group(['middleware' => 'auth:api'], function () {
 
-            Route::apiResource('events', EventController::class);
-            Route::get('/helpdesk', [HelpdeskBotController::class, 'show']);
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::get('/me', [AuthController::class, 'me']);
 
-        });
+        Route::apiResource('events', EventController::class);
+
+        Route::get('/helpdesk', [HelpdeskBotController::class, 'show']);
+        Route::post('/helpdesk', [HelpdeskBotController::class, 'store']);
+
+    });
 });

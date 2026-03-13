@@ -33,7 +33,7 @@ class AuthController extends Controller
         ]);
     }
 
-    protected function respondWithToken($token)
+    protected function respondWithToken(mixed $token)
     {
         return response()->json([
             'access_token' => $token,
