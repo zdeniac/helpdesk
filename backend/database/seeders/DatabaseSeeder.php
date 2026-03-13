@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::factory()->create([
+        User::factory()->create([
             'name' => 'Admin',
             'email' => 'admin@backend.com',
             'role' => UserRole::ADMIN->value,
@@ -29,6 +29,15 @@ class DatabaseSeeder extends Seeder
             'role' => UserRole::AGENT->value,
             'password' => 'agent',
         ]);
+
+        User::factory()->create([
+            'name' => 'Helpdesk User',
+            'email' => 'user@backend.com',
+            'role' => UserRole::USER->value,
+            'password' => 'user',
+        ]);
+
+
 
         User::factory()
             ->count(10)

@@ -35,7 +35,7 @@ final class HelpdeskBotService
         return $conversation;
     }
 
-    public function reply(int $userId, string $question): ConversationDTO
+    public function reply(string $question, int $userId): ConversationDTO
     {
         $conversation = $this->startConversation($userId);
 

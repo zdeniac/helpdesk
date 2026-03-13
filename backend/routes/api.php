@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\UserRole;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HelpdeskBotController;
 use Illuminate\Support\Facades\Route;
@@ -18,8 +19,9 @@ Route::group(['middleware' => 'api'], function () {
 
         Route::apiResource('events', EventController::class);
 
-        Route::get('/helpdesk', [HelpdeskBotController::class, 'show']);
-        Route::post('/helpdesk', [HelpdeskBotController::class, 'store']);
-
+        Route::group(['middleware' => ['role:'.UserRole::USER->value]], function () {
+            Route::get('/helpdesk', [HelpdeskBotController::class, 'show']);
+            Route::post('/helpdesk', [HelpdeskBotController::class, 'store']);
+        });
     });
 });
