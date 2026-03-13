@@ -32,7 +32,6 @@ class DatabaseSeeder extends Seeder
         User::factory()
             ->count(10)
             ->hasEvents(3)
-            ->hasConversations(1)
             ->create(['role' => UserRole::USER->value]);
     }
 }

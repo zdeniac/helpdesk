@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use App\Enums\UserRole;
 use App\Models\Event;
 use App\Models\User;
-use App\Service\EventService;
+use App\Services\EventService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

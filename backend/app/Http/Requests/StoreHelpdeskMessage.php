@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SaveEventRequest extends FormRequest
+class StoreHelpdeskMessage extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -14,9 +14,7 @@ class SaveEventRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
-            'occurrence' => ['required', 'date'],
-            'description' => ['nullable', 'string'],
+            'message' => ['required', 'string', 'max:255'],
         ];
     }
 }

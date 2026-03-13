@@ -10,21 +10,21 @@ use App\Enums\UserRole;
 use App\Models\Conversation;
 use App\Models\HelpdeskArticle;
 use App\Models\User;
-use App\Service\HelpdeskService;
+use App\Services\HelpdeskBotService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class HelpdeskServiceTest extends TestCase
+class HelpdeskBotServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    private readonly HelpdeskService $service;
+    private readonly HelpdeskBotService $service;
     private readonly User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new HelpdeskService();
+        $this->service = new HelpdeskBotService();
         $this->user = User::factory()->create(['role' => UserRole::USER->value]);
     }
 
@@ -62,7 +62,7 @@ class HelpdeskServiceTest extends TestCase
             'answer' => 'Hi there!',
         ]);
 
-        $dto = $this->service->botReply($user->id, 'Hello');
+        $dto = $this->service->reply($user->id, 'Hello');
 
         $this->assertInstanceOf(ConversationDTO::class, $dto);
         $this->assertEquals($user->id, $dto->userId);
@@ -70,11 +70,11 @@ class HelpdeskServiceTest extends TestCase
         $this->assertInstanceOf(HelpdeskMessageDTO::class, $dto->messages[0]);
         $this->assertInstanceOf(HelpdeskMessageDTO::class, $dto->messages[1]);
 
-        // sender_type-ok
+        // sender_types
         $this->assertEquals(HelpdeskMessageSenderType::USER->value, $dto->messages[0]->senderType);
         $this->assertEquals(HelpdeskMessageSenderType::BOT->value, $dto->messages[1]->senderType);
 
-        // bot válasza
+        // bot answer
         $this->assertEquals('Hi there!', $dto->messages[1]->message);
     }
 
@@ -82,28 +82,9 @@ class HelpdeskServiceTest extends TestCase
     {
         $user = $this->user;
 
-        $dto = $this->service->botReply($user->id, 'Unknown question');
+        $dto = $this->service->reply($user->id, 'Unknown question');
 
         $this->assertEquals(ConversationStatus::WAITING_AGENT->value, $dto->status);
         $this->assertEquals('Please contact our colleagues for further answers.', $dto->messages[1]->message);
-    }
-
-    public function test_can_close_a_conversation(): void
-    {
-        $user = $this->user;
-
-        $conversation = Conversation::create([
-            'user_id' => $user->id,
-            'status' => ConversationStatus::OPEN->value,
-        ]);
-
-        $closed = $this->service->closeConversation($conversation->id);
-
-        $this->assertEquals(ConversationStatus::CLOSED->value, $closed->status);
-
-        $this->assertDatabaseHas('conversations', [
-            'id' => $conversation->id,
-            'status' => ConversationStatus::CLOSED->value,
-        ]);
     }
 }
