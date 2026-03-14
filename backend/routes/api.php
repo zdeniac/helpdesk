@@ -19,7 +19,7 @@ Route::group(['middleware' => 'api'], function () {
 
         Route::apiResource('events', EventController::class);
 
-        Route::group(['middleware' => ['role:'.UserRole::USER->value]], function () {
+        Route::group(['middleware' => ['role:user']], function () {
             Route::get('/helpdesk', [HelpdeskBotController::class, 'show']);
             Route::post('/helpdesk', [HelpdeskBotController::class, 'store']);
         });

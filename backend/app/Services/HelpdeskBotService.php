@@ -45,7 +45,7 @@ final class HelpdeskBotService
             'message' => $question,
         ]);
 
-        $answer = HelpdeskArticle::where('question', 'like', "%{$question}%")
+        $answer = HelpdeskArticle::whereFullText(['question', 'answer'], $question)
             ->first()?->answer ?? self::DEFAULT_ANSWER;
         
         if ($answer == self::DEFAULT_ANSWER) {

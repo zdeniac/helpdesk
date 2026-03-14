@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('question');
             $table->text('answer');
             $table->timestamps();
+
+            $table->fullText(['question', 'answer']);
         });
 
         Schema::create('conversations', function (Blueprint $table) {
