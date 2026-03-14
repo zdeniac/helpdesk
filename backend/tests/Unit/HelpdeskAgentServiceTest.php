@@ -2,44 +2,81 @@
 
 namespace Tests\Unit;
 
+use App\DTOs\HelpdeskMessageDTO;
 use App\Enums\ConversationStatus;
-use App\Enums\UserRole;
+use App\Enums\HelpdeskMessageSenderType;
 use App\Models\Conversation;
 use App\Models\User;
 use App\Services\HelpdeskAgentService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class HelpdeskAgentServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    private readonly HelpdeskAgentService $service;
-    private readonly User $user;
+    private HelpdeskAgentService $service;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->service = new HelpdeskAgentService();
-        $this->user = User::factory()->create(['role' => UserRole::USER->value]);
     }
-/*
-    public function test_can_close_a_conversation(): void
-    {
-        $user = $this->user;
 
-        $conversation = Conversation::create([
-            'user_id' => $user->id,
+    public function test_reply_creates_a_message_and_assigns_agent(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'status' => ConversationStatus::WAITING_AGENT->value,
+        ]);
+
+        $agent = User::factory(1)->create();
+        $agentId = $agent[0]->id;
+        $messageText = 'Ez egy teszt válasz';
+
+        $dto = $this->service->reply($conversation->id, $agentId, $messageText);
+        $conversation->refresh();
+        $this->assertEquals($agentId, $conversation->assigned_agent_id);
+        $this->assertEquals(ConversationStatus::OPEN->value, $conversation->status);
+
+        // test message exists
+        $this->assertDatabaseHas('helpdesk_messages', [
+            'conversation_id' => $conversation->id,
+            'sender_type' => HelpdeskMessageSenderType::AGENT->value,
+            'message' => $messageText,
+        ]);
+
+        // test dto
+        $this->assertInstanceOf(HelpdeskMessageDTO::class, $dto);
+        $this->assertEquals($conversation->id, $dto->conversationId);
+        $this->assertEquals($messageText, $dto->message);
+        $this->assertEquals(HelpdeskMessageSenderType::AGENT->value, $dto->senderType);
+    }
+
+    public function test_closeConversation_sets_status_to_closed(): void
+    {
+        $conversation = Conversation::factory()->create([
             'status' => ConversationStatus::OPEN->value,
         ]);
 
-        $closed = $this->service->closeConversation($conversation->id);
+        $closedConversation = $this->service->closeConversation($conversation->id);
 
-        $this->assertEquals(ConversationStatus::CLOSED->value, $closed->status);
+        $conversation->refresh();
+        $this->assertEquals(ConversationStatus::CLOSED->value, $conversation->status);
+        $this->assertEquals($conversation->id, $closedConversation->id);
+    }
 
-        $this->assertDatabaseHas('conversations', [
-            'id' => $conversation->id,
-            'status' => ConversationStatus::CLOSED->value,
-        ]);
-    }*/
+    public function test_reply_throws_exception_if_conversation_not_found(): void
+    {
+        $this->expectException(ModelNotFoundException::class);
+
+        $this->service->reply(9999, 1, 'test');
+    }
+
+    public function test_closeConversation_throws_exception_if_conversation_not_found(): void
+    {
+        $this->expectException(ModelNotFoundException::class);
+
+        $this->service->closeConversation(9999);
+    }
 }

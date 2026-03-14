@@ -13,7 +13,7 @@ class ConversationFactory extends Factory
         return [
             'user_id' => User::factory(),
             'assigned_agent_id' => null,
-            'status' => $this->faker->randomElement([
+            'status' => fake()->randomElement([
                 ConversationStatus::OPEN->value,
                 ConversationStatus::WAITING_AGENT->value,
                 ConversationStatus::CLOSED->value,

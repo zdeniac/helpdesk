@@ -13,11 +13,14 @@ final class HelpdeskAgentService
     public function reply(int $conversationId, int $agentId, string $message): HelpdeskMessageDTO
     {
         $conversation = Conversation::findOrFail($conversationId);
-
+        
         $conversation->assigned_agent_id = $agentId;
+
         // We change the conversation status back to open
-        $conversation->status = ConversationStatus::OPEN->value;
-        $conversation->save();
+        $conversation = $this->updateConversationStatus(
+            $conversation,
+            ConversationStatus::OPEN,
+        );
 
         $reply = HelpdeskMessage::create([
             'conversation_id' => $conversation->id,
@@ -36,10 +39,16 @@ final class HelpdeskAgentService
 
     public function closeConversation(int $conversationId): Conversation
     {
-        $conversation = Conversation::findOrFail($conversationId);
-        $conversation->status = ConversationStatus::CLOSED->value;
-        $conversation->save();
+        return $this->updateConversationStatus(
+            Conversation::findOrFail($conversationId), 
+            ConversationStatus::CLOSED
+        );
+    }
 
+    private function updateConversationStatus(Conversation $conversation, ConversationStatus $status): Conversation
+    {
+        $conversation->status = $status->value;
+        $conversation->save();
         return $conversation;
     }
 }

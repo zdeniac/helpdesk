@@ -57,12 +57,13 @@ class HelpdeskBotServiceTest extends TestCase
     {
         $user = $this->user;
 
-        HelpdeskArticle::create([
-            'question' => 'Hello',
-            'answer' => 'Hi there!',
+        $answer = HelpdeskArticle::create([
+            'question' => 'Hello anybody can help me?',
+            'answer' => 'Yes, we are here to help!',
         ]);
 
-        $dto = $this->service->reply($user->id, 'Hello');
+        // We are not using the full text search because it is non-deterministic
+        $dto = $this->service->reply('Hello anybody can help me?', $user->id, false);
 
         $this->assertInstanceOf(ConversationDTO::class, $dto);
         $this->assertEquals($user->id, $dto->userId);
@@ -70,21 +71,21 @@ class HelpdeskBotServiceTest extends TestCase
         $this->assertInstanceOf(HelpdeskMessageDTO::class, $dto->messages[0]);
         $this->assertInstanceOf(HelpdeskMessageDTO::class, $dto->messages[1]);
 
-        // sender_types
+        // senderTypes
         $this->assertEquals(HelpdeskMessageSenderType::USER->value, $dto->messages[0]->senderType);
         $this->assertEquals(HelpdeskMessageSenderType::BOT->value, $dto->messages[1]->senderType);
 
         // bot answer
-        $this->assertEquals('Hi there!', $dto->messages[1]->message);
+        $this->assertEquals('Yes, we are here to help!', $dto->messages[1]->message);
     }
 
     public function test_sets_conversation_status_to_waiting_agent_if_no_answer(): void
     {
         $user = $this->user;
 
-        $dto = $this->service->reply($user->id, 'Unknown question');
+        $dto = $this->service->reply('Unknown question', $user->id);
 
         $this->assertEquals(ConversationStatus::WAITING_AGENT->value, $dto->status);
-        $this->assertEquals('Please contact our colleagues for further answers.', $dto->messages[1]->message);
+        $this->assertEquals(HelpdeskBotService::DEFAULT_ANSWER, $dto->messages[1]->message);
     }
 }

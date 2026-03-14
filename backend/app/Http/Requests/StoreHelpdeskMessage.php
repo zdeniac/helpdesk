@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\UserRole;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreHelpdeskMessage extends FormRequest
@@ -13,8 +14,14 @@ class StoreHelpdeskMessage extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'message' => ['required', 'string', 'max:255'],
         ];
+
+        if ($this->user()->role === UserRole::AGENT->value) {
+            $rules['conversation_id'] = ['required', 'integer', 'exists:conversations,id'];
+        }
+
+        return $rules; 
     }
 }

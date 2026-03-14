@@ -9,7 +9,6 @@ use App\Models\Conversation;
 use App\Models\HelpdeskArticle;
 use App\Models\HelpdeskMessage;
 use App\DTOs\HelpdeskMessageDTO;
-use Illuminate\Support\Collection;
 
 final class HelpdeskBotService
 {
@@ -20,47 +19,66 @@ final class HelpdeskBotService
      */
     public function startConversation(int $userId): Conversation
     {
-        $conversation = Conversation::where([
+        $conversation = Conversation::where('user_id', $userId)
+            ->where('status', '!=', ConversationStatus::CLOSED->value)
+            ->with('messages')
+            ->first();
+
+        return $conversation ?? Conversation::create([
             'user_id' => $userId,
-            ['status', '!=', ConversationStatus::CLOSED->value]
-        ])->with('messages')->first();
-
-        if ($conversation === null) {
-            $conversation = Conversation::create([
-                'user_id' => $userId,
-                'status' => ConversationStatus::OPEN->value,
-            ]);
-        }
-
-        return $conversation;
+            'status' => ConversationStatus::OPEN->value,
+        ]);
     }
 
-    public function reply(string $question, int $userId): ConversationDTO
+    /**
+     * User asks a question, bot replies.
+     */
+    public function reply(string $question, int $userId, bool $useFullTextSearch = true): ConversationDTO
     {
         $conversation = $this->startConversation($userId);
 
-        HelpdeskMessage::create([
-            'conversation_id' => $conversation->id,
-            'sender_type' => HelpdeskMessageSenderType::USER->value,
-            'message' => $question,
-        ]);
+        $this->storeMessage($conversation->id, HelpdeskMessageSenderType::USER->value, $question);
 
-        $answer = HelpdeskArticle::whereFullText(['question', 'answer'], $question)
-            ->first()?->answer ?? self::DEFAULT_ANSWER;
-        
-        if ($answer == self::DEFAULT_ANSWER) {
+        $answer = $this->getAnswer($question, $useFullTextSearch);
+
+        if ($answer === self::DEFAULT_ANSWER) {
             $conversation->status = ConversationStatus::WAITING_AGENT->value;
             $conversation->save();
         }
 
-        HelpdeskMessage::create([
-            'conversation_id' => $conversation->id,
-            'sender_type' => HelpdeskMessageSenderType::BOT->value,
-            'message' => $answer,
-        ]);
+        $this->storeMessage($conversation->id, HelpdeskMessageSenderType::BOT->value, $answer);
 
-        /** @var Collection $replies */
-        $replies = $conversation->messages->map(fn (HelpdeskMessage $msg) => new HelpdeskMessageDTO(
+        return $this->toConversationDTO($conversation);
+    }
+
+    private function storeMessage(int $conversationId, string $senderType, string $message): void
+    {
+        HelpdeskMessage::create([
+            'conversation_id' => $conversationId,
+            'sender_type' => $senderType,
+            'message' => $message,
+        ]);
+    }
+
+    private function getAnswer(string $question, bool $useFullTextSearch): string
+    {
+        $query = HelpdeskArticle::query();
+
+        if ($useFullTextSearch) {
+            $query->whereFullText(['question', 'answer'], $question);
+        } else {
+            $query->where('question', 'like', "%{$question}%");
+        }
+
+        return $query->first()?->answer ?? self::DEFAULT_ANSWER;
+    }
+
+    private function toConversationDTO(Conversation $conversation): ConversationDTO
+    {
+        // refresh messages
+        $conversation->load('messages');
+
+        $messages = $conversation->messages->map(fn(HelpdeskMessage $msg) => new HelpdeskMessageDTO(
             $msg->id,
             $conversation->id,
             $msg->sender_type,
@@ -68,6 +86,11 @@ final class HelpdeskBotService
             $msg->created_at
         ));
 
-        return new ConversationDTO($conversation->id, $userId, $conversation->status, $replies);
+        return new ConversationDTO(
+            $conversation->id,
+            $conversation->user_id,
+            $conversation->status,
+            $messages
+        );
     }
 }
