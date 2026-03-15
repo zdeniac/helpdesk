@@ -13,8 +13,9 @@ final class ConversationService
         string $orderBy = 'created_at',
         string $order = 'DESC',
     ): Collection {
-        return Conversation::where('status', $status->value)
-            ->orderBy([$orderBy => $order])
+        return Conversation::orderBy($orderBy, $order)
+            ->where(['status' => $status->value])
+            ->with('user')
             ->get();        
     }
 

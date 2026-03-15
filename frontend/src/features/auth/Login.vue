@@ -4,7 +4,7 @@
 
             <!-- Logo -->
             <div class="login-logo">
-                <b>Admin</b> Login
+                <b>Login</b>
             </div>
 
             <!-- Card -->
@@ -70,10 +70,16 @@ export default {
                     email: email.value,
                     password: password.value,
                 });
+                
+                const token = response.data.access_token;
+                localStorage.setItem("token", token);
 
-                localStorage.setItem("token", response.data.access_token);
-                // ELLENŐRIZNI A ROLE-ra
-                router.push("/events");
+                const meResp = await axios.get(`${API_BASE_URL}/me`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const userRole = meResp.data.role;
+
+                userRole === 'agent' ? router.push('/conversations') : router.push('/events');
 
             } catch (e) {
                 let message = "Login failed";

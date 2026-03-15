@@ -35,9 +35,9 @@ Route::group(['middleware' => 'api'], function () {
         // Agent routes (agent controller)
         Route::group(['prefix' => 'agent', 'middleware' => ['role:agent']], function () {
             Route::get('/conversations', [HelpdeskAgentController::class, 'index']);
-            Route::get('/conversations/{id}', [HelpdeskAgentController::class, 'show']);
-            Route::post('/conversations/{id}', [HelpdeskAgentController::class, 'store']);
-            Route::post('/conversations/{id}/close', [HelpdeskAgentController::class, 'close']);
+            Route::get('/helpdesk/{id}', [HelpdeskAgentController::class, 'show']);
+            Route::post('/helpdesk/{id}', [HelpdeskAgentController::class, 'store']);
+            Route::post('/helpdesk/{id}/close', [HelpdeskAgentController::class, 'close']);
         });
     });
 });

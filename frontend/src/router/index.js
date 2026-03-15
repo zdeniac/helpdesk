@@ -18,16 +18,17 @@ const routes = [
 		component: MainLayout,
 		children: [
 			{
-				path: '/events',
+				path: 'events',
 				component: Events
 			},
 			{
-				path: '/conversations',
+				path: 'conversations',
 				component: Conversations
 			},
 			{
-				path: '/helpdesk',
-				component: Helpdesk
+				path: 'helpdesk/:id?',
+				component: Helpdesk,
+				props: true
 			}
 		],
 	}

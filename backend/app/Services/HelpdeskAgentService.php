@@ -45,7 +45,7 @@ final class HelpdeskAgentService
         );
     }
 
-    private function updateConversationStatus(Conversation $conversation, ConversationStatus $status): Conversation
+    public function updateConversationStatus(Conversation $conversation, ConversationStatus $status): Conversation
     {
         $conversation->status = $status->value;
         $conversation->save();

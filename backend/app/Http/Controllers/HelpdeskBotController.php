@@ -19,7 +19,7 @@ class HelpdeskBotController extends Controller
 
     public function store(StoreHelpdeskMessage $request)
     {
-        $conversationDTO = $this->service->reply(
+        $conversationDTO = $this->service->replyByBot(
             $request->validated('message'), auth('api')->id()
         );
 

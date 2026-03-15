@@ -18,10 +18,6 @@ class StoreHelpdeskMessage extends FormRequest
             'message' => ['required', 'string', 'max:255'],
         ];
 
-        if ($this->user()->role === UserRole::AGENT->value) {
-            $rules['conversation_id'] = ['required', 'integer', 'exists:conversations,id'];
-        }
-
         return $rules; 
     }
 }
