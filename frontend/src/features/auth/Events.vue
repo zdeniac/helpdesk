@@ -1,58 +1,98 @@
 <template>
-    <div>
-        <h1>Events</h1>
-        <div v-if="loading">Betöltés...</div>
-        <div v-else>
-            <div>
-                <n-button @click="showForm = !showForm">
-                    {{ showForm ? 'Mégse' : 'Új esemény' }}
-                </n-button>
-                <div v-if="showForm" class="event-form">
-                    <form @submit.prevent="submitEvent">
-                        <div>
-                            <label for="title">Cím:</label>
-                            <input type="text" id="title" v-model="newEvent.title" required>
-                        </div>
+    <div class="container-fluid pt-3">
 
-                        <div>
-                            <label for="occurrence">Dátum:</label>
-                            <input type="datetime-local" id="occurrence" v-model="newEvent.occurrence">
-                        </div>
+        <!-- Card wrapper -->
+        <div class="card">
 
-                        <div>
-                            <label for="description">Leírás:</label>
-                            <textarea id="description" v-model="newEvent.description"></textarea>
-                        </div>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title">Eseményeim</h3>
+                <button class="btn btn-primary btn-lg ms-auto" @click="showForm = true">
+                    Új esemény
+                </button>
+            </div>
 
-                        <button type="submit">Mentés</button>
-                    </form>
+            <div class="card-body">
+
+                <div v-if="loading" class="text-center">
+                    Betöltés...
+                </div>
+
+                <div v-else>
+                    <div v-if="events.data?.length">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Cím</th>
+                                    <th>Dátum</th>
+                                    <th>Leírás</th>
+                                    <th>Műveletek</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="event in events.data" :key="event.id">
+                                    <td>{{ event.title }}</td>
+                                    <td>{{ new Date(event.occurrence).toLocaleString() }}</td>
+                                    <td>{{ event.description }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info me-1" @click="editEvent(event)">Szerkesztés</button>
+                                        <button class="btn btn-sm btn-danger" @click="deleteEvent(event.id)">Törlés</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div v-else>
+                        <p>Nincsenek eseményeid.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Modal form -->
+        <div class="modal fade" :class="{ show: showForm }" style="display: block;" tabindex="-1" role="dialog" v-if="showForm">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <div class="modal-header d-flex justify-content-between align-items-center">
+                        <h5 class="modal-title">{{ editingEvent ? 'Esemény szerkesztése' : 'Új esemény' }}</h5>
+                        <button type="button" class="btn-close" @click="cancelForm" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div v-if="error" class="alert alert-danger">
+                            {{ error }}
+                        </div>
+                        <form @submit.prevent="submitEvent">
+
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Cím:</label>
+                                <input type="text" id="title" v-model="newEvent.title" class="form-control" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="occurrence" class="form-label">Dátum:</label>
+                                <input type="datetime-local" id="occurrence" v-model="newEvent.occurrence" class="form-control">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Leírás:</label>
+                                <textarea id="description" v-model="newEvent.description" class="form-control"></textarea>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Mentés</button>
+                            </div>
+
+                        </form>
+                    </div>
+
                 </div>
             </div>
-            <div v-if="events.data?.length">
-                <table border="1" cellpadding="5">
-                    <thead>
-                        <tr>
-                            <th>Cím</th>
-                            <th>Dátum</th>
-                            <th>Leírás</th>
-                            <th>Műveletek</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="event in events.data" :key="event.id">
-                            <td>{{ event.title }}</td>
-                            <td>{{ new Date(event.occurrence).toLocaleString() }}</td>
-                            <td>{{ event.description }}</td>
-                            <td>
-                                <button @click="editEvent(event)">Szerkesztés</button>
-                                <button @click="deleteEvent(event.id)">Törlés</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div v-else>Nincsenek eseményeid.</div>
         </div>
+
+        <!-- Backdrop -->
+        <div v-if="showForm" class="modal-backdrop fade show"></div>
     </div>
 </template>
 <script>
@@ -66,6 +106,7 @@ export default {
         const loading = ref(true);
         const showForm = ref(false);
         const editingEvent = ref(null);
+        const error = ref(null);
         const newEvent = ref({
             title: '',
             occurrence: '',
@@ -88,12 +129,14 @@ export default {
         };
 
         const openForm = () => {
+            error.value = null;
             showForm.value = true;
             editingEvent.value = null;
             newEvent.value = { title: '', occurrence: '', description: '' };
         };
 
         const cancelForm = () => {
+            error.value = null;
             showForm.value = false;
             editingEvent.value = null;
             newEvent.value = { title: '', occurrence: '', description: '' };
@@ -104,25 +147,29 @@ export default {
             if (!token) return;
 
             try {
+                error.value = null;
+
                 if (editingEvent.value) {
                     // Update
                     const response = await axios.put(`${API_BASE_URL}/api/events/${editingEvent.value.id}`, newEvent.value, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
-                    // updating the dable
+                    // updating the table
                     const index = events.value.data.findIndex(e => e.id === editingEvent.value.id);
                     if (index !== -1) events.value.data[index] = response.data.data;
                 } else {
                     // Create
-                    console.log(newEvent.value);
                     const response = await axios.post(`${API_BASE_URL}/api/events`, newEvent.value, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     events.value.data.push(response.data.data);
                 }
                 cancelForm();
-            } catch (error) {
-                console.error('Failed to save event', error);
+            } catch (err) {
+                error.value = err.response?.data?.message
+                || (err.response?.data?.errors 
+                    ? Object.values(err.response.data.errors).flat().join(' • ')
+                    : err.message);
             }
         };
 
@@ -148,7 +195,7 @@ export default {
                 });
                 events.value.data = events.value.data.filter(e => e.id !== id);
             } catch (error) {
-                console.error('Failed to delete event', error);
+                console.error('Failed to delete event');
             }
         }
 
@@ -158,11 +205,13 @@ export default {
             events, 
             loading, 
             showForm, 
-            newEvent, 
-            deleteEvent, 
+            newEvent,
+            editingEvent,
+            error,
+            deleteEvent,
             submitEvent, 
-            editEvent, 
-            openForm, 
+            editEvent,
+            openForm,
             cancelForm 
         };
     }
