@@ -21,12 +21,9 @@ Route::group(['middleware' => 'api'], function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/me', [AuthController::class, 'me']);
 
-        Route::group(['middleware' => ['role:user']], function () {
-            Route::apiResource('events', EventController::class);
-        });
-
         // User routes (normal helpdesk)
         Route::group(['middleware' => ['role:user']], function () {
+            Route::apiResource('events', EventController::class);
             Route::get('/helpdesk', [HelpdeskBotController::class, 'show']);
             Route::post('/helpdesk', [HelpdeskBotController::class, 'store']);
         });
