@@ -8,8 +8,6 @@ enum ConversationStatus: string
     case OPEN = 'open';
     // agentre vár a beszélgetés             
     case WAITING_AGENT = 'waiting_agent';
-    // agent aktívan válaszol
-    case AGENT = 'agent';
     // lezárt beszélgetés
     case CLOSED = 'closed';
 }

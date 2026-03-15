@@ -13,10 +13,7 @@ final class ConversationService
         string $order = 'DESC',
     ): Collection {
         return Conversation::orderBy($orderBy, $order)
-            ->where([
-                'status' => ConversationStatus::WAITING_AGENT->value, 
-                'status' => ConversationStatus::AGENT->value,
-            ])
+            ->where(['status' => ConversationStatus::WAITING_AGENT->value])
             ->with('user')
             ->get();        
     }
