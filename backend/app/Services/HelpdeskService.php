@@ -21,10 +21,10 @@ final class HelpdeskService
         
         $conversation->assigned_agent_id = $agentId;
 
-        // We change the conversation status back to open
+        // We change the conversation status back to agent
         $conversation = $this->updateConversationStatus(
             $conversation,
-            ConversationStatus::OPEN,
+            ConversationStatus::AGENT,
         );
 
         $reply = $this->storeMessage($conversationId, HelpdeskMessageSenderType::AGENT, $agentAnswer);
@@ -67,6 +67,12 @@ final class HelpdeskService
         $conversation = $this->getConversation($userId);
 
         $userMsg = $this->storeMessage($conversation->id, HelpdeskMessageSenderType::USER, $question);
+
+        if ($conversation->status === ConversationStatus::AGENT->value) {
+            $conversation->setRelation('messages', $conversation->messages->concat([$userMsg]));
+            return $this->toDTO($conversation);
+        }
+        
         $answer = $this->getAnswer($question, $useFullTextSearch);
 
         if ($answer === self::DEFAULT_ANSWER) {
