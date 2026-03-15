@@ -40,6 +40,12 @@ docker exec -it backend bash
 # Futtasd az Artisan parancsokat:
 php artisan
 
+# Hozd létre az app kulcsot
+php artisan key:generate
+
+# Hozd létre a JWT kulcsot
+php artisan jwt:generate
+
 # Migráld az adatbázist:
 php artisan migrate
 
