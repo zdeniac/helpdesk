@@ -106,9 +106,9 @@ export default {
 
 		onMounted(fetchConversations);
 
-		return {
-			conversations,
-			loading,
+    return {
+        conversations,
+		    loading,
 			fetchConversations,
 			openConversation,
 			closeConversation,
