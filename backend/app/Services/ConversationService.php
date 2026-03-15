@@ -9,7 +9,6 @@ use Illuminate\Support\Collection;
 final class ConversationService
 {
     public function listForAgent(
-        ConversationStatus $status = ConversationStatus::WAITING_AGENT,
         string $orderBy = 'created_at',
         string $order = 'DESC',
     ): Collection {
