@@ -1,53 +1,53 @@
 <template>
-  <div class="container-fluid pt-3">
-    <div class="card">
-      <div class="card-header d-flex align-items-center">
-        <h3 class="card-title mb-0">Conversations</h3>
-      </div>
+    <div class="container-fluid pt-3">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <h3 class="card-title mb-0">Conversations</h3>
+            </div>
 
-      <div class="card-body">
-        <div v-if="loading" class="text-center">
-          Betöltés...
-        </div>
+        <div class="card-body">
+            <div v-if="loading" class="text-center">
+            Betöltés...
+            </div>
 
         <div v-else>
-          <div v-if="conversations.length">
-            <table class="table table-bordered table-striped">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>User</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="conversation in conversations" :key="conversation.id">
-                  <td>{{ conversation.id }}</td>
-                  <td>{{ conversation.user.name ?? conversation.userId }}</td>
-                  <td>{{ conversation.status }}</td>
-                  <td>
-                    <button
-                      class="btn btn-sm btn-info me-1"
-                      @click="openConversation(conversation.id)"
-                    >
-                      Megnyitás
-                    </button>
-                    <button
-                      class="btn btn-sm btn-danger"
-                      @click="closeConversation(conversation.id)"
-                    >
-                      Lezárás
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+            <div v-if="conversations.length">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="conversation in conversations" :key="conversation.id">
+                            <td>{{ conversation.id }}</td>
+                            <td>{{ conversation.user.name ?? conversation.userId }}</td>
+                            <td>{{ conversation.status }}</td>
+                            <td>
+                                <button
+                                class="btn btn-sm btn-info me-1"
+                                @click="openConversation(conversation.id)"
+                                >
+                                    Megnyitás
+                                </button>
+                                <button
+                                class="btn btn-sm btn-danger"
+                                @click="closeConversation(conversation.id)"
+                                >
+                                    Lezárás
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-          <div v-else class="text-center text-muted">
-            Nincsenek beszélgetések.
-          </div>
+            <div v-else class="text-center text-muted">
+                Nincsenek beszélgetések.
+            </div>
         </div>
       </div>
     </div>
