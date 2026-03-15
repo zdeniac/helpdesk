@@ -12,7 +12,7 @@ import ResetPassword from '../features/auth/ResetPassword.vue';
 const routes = [
   // Public routes
   {
-    path: '/login',
+	path: '/login',
     component: Login
   },
   {
@@ -25,20 +25,20 @@ const routes = [
 	props: true
   },
 
-  // Protected routes (MainLayout + children)
+  // Protected routes (MainLayout)
   {
     path: '/',
     component: MainLayout,
     children: [
-      { path: '', redirect: '/events' }, // ha valaki simán '/'-ra megy, menjen events-re
-      { path: 'events', component: Events },
-      { path: 'conversations', component: Conversations },
-      { path: 'helpdesk/:id?', component: Helpdesk, props: true }
+		{ path: '', redirect: '/events' },
+		{ path: 'events', component: Events },
+		{ path: 'conversations', component: Conversations },
+		{ path: 'helpdesk/:id?', component: Helpdesk, props: true }
     ]
   },
 
   // Catch-all redirect
-  { path: '/:catchAll(.*)', redirect: '/login' }
+   	{ path: '/:catchAll(.*)', redirect: '/login' }
 ];
 
 const router = createRouter({
