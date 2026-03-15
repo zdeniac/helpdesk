@@ -1,5 +1,26 @@
 # Dokumentáció
 
+## Projekt technológiai stack és környezet
+
+Frontend:
+- Framework: Vue 3 (Composition API, feature-based structure)
+- Routing: Vue Router 5
+- HTTP kliens: Axios
+- Stílus és UI: Bootstrap 5 + AdminLTE + FontAwesome
+- Build & Dev: Vite
+- Package manager: npm
+
+Backend:
+- Framework: Laravel 12
+- PHP verzió: 8.5
+- Autentikáció: JWT alapú (tymon/jwt-auth), opcionális MFA
+- Adatbázis: MySQL 8.0
+
+Docker konténerizáció
+
+API:
+- RESTful API JSON payloadokkal
+
 
 ## Projekt inicializálás
 
@@ -34,7 +55,6 @@ npm install
 npm run dev
 ```
 
-## API Route-ok (routes/api.php)
 ## API Route-ok (routes/api.php)
 
 | Endpoint                          | Method | Description                             |Auth                |
