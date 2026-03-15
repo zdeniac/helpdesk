@@ -16,7 +16,7 @@ class HelpdeskAgentController extends Controller
 
     public function index()
     {   
-        return $this->convoService->listByStatus()->toResourceCollection()->toPrettyJson();
+        return $this->convoService->listForAgent()->toResourceCollection()->toPrettyJson();
     }
 
     public function store(StoreHelpdeskMessage $request, string $conversationId)
