@@ -31,9 +31,9 @@ const routes = [
     component: MainLayout,
     children: [
 		{ path: '', redirect: '/events' },
-		{ path: 'events', component: Events },
-		{ path: 'conversations', component: Conversations },
-		{ path: 'helpdesk/:id?', component: Helpdesk, props: true }
+		{ path: 'events', component: Events, meta: { requiresAuth: true } },
+		{ path: 'conversations', component: Conversations,  },
+		{ path: 'helpdesk/:id?', component: Helpdesk, props: true, meta: { requiresAuth: true } }
     ]
   },
 

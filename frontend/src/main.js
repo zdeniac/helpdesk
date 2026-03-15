@@ -12,16 +12,13 @@ import 'bootstrap';
 const app = createApp(App);
 
 // Globális interceptor minden axios hívásra a token érvényesség ellenőrzéséhez
-axios.interceptors.response.use(
-    response => response,
-        error => {
-            if (error.response?.status === 401) {
-                localStorage.removeItem('token');
-                router.push('/login');
-            }
-            return Promise.reject(error);
-        }
-    );
+router.beforeEach((to, from, next) => {
+    const token = localStorage.getItem('token');
+    if (to.meta.requiresAuth && !token) {
+        return next('/login');
+    }
+    next();
+});
 
 app.use(router)
     .mount('#app');
