@@ -37,7 +37,7 @@ const routes = [
     ]
   },
 
-  // Catch-all redirect
+  	// Catch-all redirect
    	{ path: '/:catchAll(.*)', redirect: '/login' }
 ];
 
