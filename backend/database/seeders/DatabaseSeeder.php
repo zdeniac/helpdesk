@@ -21,14 +21,14 @@ class DatabaseSeeder extends Seeder
             'name' => 'Helpdesk Agent',
             'email' => 'agent@backend.com',
             'role' => UserRole::AGENT->value,
-            'password' => 'agent',
+            'password' => 'agentpassword',
         ]);
 
         User::factory()->create([
             'name' => 'Helpdesk User',
             'email' => 'user@backend.com',
             'role' => UserRole::USER->value,
-            'password' => 'user',
+            'password' => 'userpassword',
         ]);
 
         User::factory()

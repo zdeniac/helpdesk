@@ -1,23 +1,56 @@
 <template>
-  <div>
-    <h1>Login</h1>
+    <div class="hold-transition login-page">
+        <div class="login-box">
 
-    <form @submit.prevent="login">
-      <div>
-        <input v-model="email" type="email" placeholder="Email">
-      </div>
+            <!-- Logo -->
+            <div class="login-logo">
+                <b>Admin</b> Login
+            </div>
 
-      <div>
-        <input v-model="password" type="password" placeholder="Password">
-      </div>
+            <!-- Card -->
+            <div class="card">
+                <div class="card-body login-card-body">
 
-      <button type="submit">Login</button>
-    </form>
+                    <p class="login-box-msg">Sign in to start your session</p>
 
-    <p v-if="error">{{ error }}</p>
-  </div>
+                    <form @submit.prevent="login">
+
+                        <!-- Email -->
+                        <div class="input-group mb-3">
+                            <input v-model="email" type="email" class="form-control" placeholder="Email">
+                            <div class="input-group-append input-group-text">
+                                <span class="fas fa-envelope"></span>
+                            </div>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="input-group mb-3">
+                            <input v-model="password" type="password" class="form-control" placeholder="Password">
+                            <div class="input-group-append input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="row">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    Login
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+
+                    <!-- Error message -->
+                    <p v-if="error" class="text-danger mt-2">{{ error }}</p>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
 </template>
-
 <script>
 import axios from "axios";
 import { API_BASE_URL } from "../../config";
@@ -39,8 +72,8 @@ export default {
                 });
 
                 localStorage.setItem("token", response.data.access_token);
-
-                router.push("/dashboard");
+                // ELLENŐRIZNI A ROLE-ra
+                router.push("/events");
 
             } catch (e) {
                 let message = "Login failed";

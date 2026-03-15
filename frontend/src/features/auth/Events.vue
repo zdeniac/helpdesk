@@ -1,12 +1,12 @@
 <template>
     <div>
-        <h1>Dashboard</h1>
+        <h1>Events</h1>
         <div v-if="loading">Betöltés...</div>
         <div v-else>
             <div>
-                <button @click="showForm = !showForm">
+                <n-button @click="showForm = !showForm">
                     {{ showForm ? 'Mégse' : 'Új esemény' }}
-                </button>
+                </n-button>
                 <div v-if="showForm" class="event-form">
                     <form @submit.prevent="submitEvent">
                         <div>
@@ -55,7 +55,6 @@
         </div>
     </div>
 </template>
-
 <script>
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
