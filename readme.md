@@ -1,45 +1,34 @@
 # Dokumentáció
 
-## Back-end
-
 
 ## Projekt inicializálás
-
 
 ```bash
 cd backend
 docker build -t ucc_project_backend .
 
-Ezután indítsd el a Docker konténereket:
-
+# Ezután indítsd el a Docker konténereket:
 docker-compose up -d
 
 # A futó konténerek ellenőrzéséhez:
-
 docker ps
 
 # Lépj be a backend konténerbe:
-
 docker exec -it backend bash
 
 # Futtasd az Artisan parancsokat:
-
 php artisan
 
 # Migráld az adatbázist:
-
 php artisan migrate
 
 # Seedeld az alapadatokat:
-
 php artisan db:seed
 
-# Ha szeretnéd egyszerre frissíteni a migrációkat és seed-elni az adatokat:
-
-php artisan migrate:fresh --seed
+# Tesztek futtatása
+php artisan test
 
 # A frontend build-eléséhez és fejlesztői szerver indításához:
-
 cd frontend
 npm install
 npm run dev
