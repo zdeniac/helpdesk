@@ -15,30 +15,24 @@ final class HelpdeskBotService
     const string DEFAULT_ANSWER = 'Please contact our colleagues.';
 
     /**
-     * Return the last non-closed conversation or create a new one
+     * Return last non-closed conversation or create a new one (returns model)
      */
-    public function startConversation(int $userId): Conversation
+    public function startConversation(int $userId): ConversationDTO
     {
-        $conversation = Conversation::where('user_id', $userId)
-            ->where('status', '!=', ConversationStatus::CLOSED->value)
-            ->with('messages')
-            ->first();
-
-        return $conversation ?? Conversation::create([
+        $conversation = $this->getConversation($userId) 
+        ?? Conversation::create([
             'user_id' => $userId,
             'status' => ConversationStatus::OPEN->value,
         ]);
+
+        return $this->toDTO($conversation);
     }
 
-    /**
-     * User asks a question, bot replies.
-     */
     public function reply(string $question, int $userId, bool $useFullTextSearch = true): ConversationDTO
     {
-        $conversation = $this->startConversation($userId);
+        $conversation = $this->getConversation($userId);
 
-        $this->storeMessage($conversation->id, HelpdeskMessageSenderType::USER->value, $question);
-
+        $userMsg = $this->storeMessage($conversation->id, HelpdeskMessageSenderType::USER->value, $question);
         $answer = $this->getAnswer($question, $useFullTextSearch);
 
         if ($answer === self::DEFAULT_ANSWER) {
@@ -46,18 +40,28 @@ final class HelpdeskBotService
             $conversation->save();
         }
 
-        $this->storeMessage($conversation->id, HelpdeskMessageSenderType::BOT->value, $answer);
+        $botMsg = $this->storeMessage($conversation->id, HelpdeskMessageSenderType::BOT->value, $answer);
+        // Attach the new messages to conversation without querying
+        $conversation->setRelation('messages', $conversation->messages->concat([$userMsg, $botMsg]));
 
-        return $this->toConversationDTO($conversation);
+        return $this->toDTO($conversation);
     }
 
-    private function storeMessage(int $conversationId, string $senderType, string $message): void
+    private function storeMessage(int $conversationId, string $senderType, string $message): HelpdeskMessage
     {
-        HelpdeskMessage::create([
+        return HelpdeskMessage::create([
             'conversation_id' => $conversationId,
             'sender_type' => $senderType,
             'message' => $message,
         ]);
+    }
+
+    private function getConversation(int $userId): ?Conversation
+    {
+        return Conversation::where('user_id', $userId)
+            ->where('status', '!=', ConversationStatus::CLOSED->value)
+            ->with('messages')
+            ->first();
     }
 
     private function getAnswer(string $question, bool $useFullTextSearch): string
@@ -73,11 +77,8 @@ final class HelpdeskBotService
         return $query->first()?->answer ?? self::DEFAULT_ANSWER;
     }
 
-    private function toConversationDTO(Conversation $conversation): ConversationDTO
+    private function toDTO(Conversation $conversation): ConversationDTO
     {
-        // refresh messages
-        $conversation->load('messages');
-
         $messages = $conversation->messages->map(fn(HelpdeskMessage $msg) => new HelpdeskMessageDTO(
             $msg->id,
             $conversation->id,

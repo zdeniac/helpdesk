@@ -32,11 +32,14 @@ class HelpdeskBotServiceTest extends TestCase
     {
         $user = $this->user;
 
-        $conversation = $this->service->startConversation($user->id);
+        $dto = $this->service->startConversation($user->id);
 
-        $this->assertInstanceOf(Conversation::class, $conversation);
-        $this->assertEquals($user->id, $conversation->user_id);
-        $this->assertEquals(ConversationStatus::OPEN->value, $conversation->status);
+        $this->assertInstanceOf(ConversationDTO::class, $dto);
+        $this->assertEquals($user->id, $dto->userId);
+        $this->assertEquals(ConversationStatus::OPEN->value, $dto->status);
+        $this->assertIsIterable($dto->messages);
+        // empty dto
+        $this->assertCount(0, $dto->messages);
     }
 
     public function test_reuses_existing_open_conversation(): void
@@ -48,19 +51,21 @@ class HelpdeskBotServiceTest extends TestCase
             'status' => ConversationStatus::OPEN->value,
         ]);
 
-        $conversation = $this->service->startConversation($user->id);
+        $dto = $this->service->startConversation($user->id);
 
-        $this->assertEquals($existing->id, $conversation->id);
+        $this->assertEquals($existing->id, $dto->id);
     }
 
     public function test_returns_a_conversation_dto_with_messages(): void
     {
         $user = $this->user;
 
-        $answer = HelpdeskArticle::create([
+        HelpdeskArticle::create([
             'question' => 'Hello anybody can help me?',
             'answer' => 'Yes, we are here to help!',
         ]);
+
+        $this->service->startConversation($user->id);
 
         // We are not using the full text search because it is non-deterministic
         $dto = $this->service->reply('Hello anybody can help me?', $user->id, false);
@@ -82,7 +87,8 @@ class HelpdeskBotServiceTest extends TestCase
     public function test_sets_conversation_status_to_waiting_agent_if_no_answer(): void
     {
         $user = $this->user;
-
+        
+        $this->service->startConversation($user->id);
         $dto = $this->service->reply('Unknown question', $user->id);
 
         $this->assertEquals(ConversationStatus::WAITING_AGENT->value, $dto->status);

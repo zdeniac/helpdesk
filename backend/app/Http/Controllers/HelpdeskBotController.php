@@ -14,12 +14,14 @@ class HelpdeskBotController extends Controller
 
     public function show()
     {
-        return $this->service->startConversation(auth('api')->id())->toResource();
+        return response()->json($this->service->startConversation(auth('api')->id()));
     }
 
     public function store(StoreHelpdeskMessage $request)
     {
-        $conversationDTO = $this->service->reply($request->validated('message'), auth('api')->id());
+        $conversationDTO = $this->service->reply(
+            $request->validated('message'), auth('api')->id()
+        );
 
         return response()->json($conversationDTO);
     }
