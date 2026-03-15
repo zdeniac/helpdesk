@@ -105,7 +105,7 @@ class HelpdeskServiceTest extends TestCase
         $this->assertEquals(ConversationStatus::CLOSED->value, $conversation->status);
     }
 
-    public function test_reply_by_agent_stores_agent_message_and_opens_conversation(): void
+    public function test_reply_by_agent_stores_agent_message_and_changes_conversation_status(): void
     {
         $user = $this->user;
         $conversationDTO = $this->service->startConversation($user->id);
@@ -121,7 +121,7 @@ class HelpdeskServiceTest extends TestCase
         $this->assertEquals($agentAnswer, $dto->messages[0]->message);
 
         $conversation = Conversation::find($conversationDTO->id);
-        $this->assertEquals(ConversationStatus::OPEN->value, $conversation->status);
+        $this->assertEquals(ConversationStatus::AGENT->value, $conversation->status);
         $this->assertEquals($agent->id, $conversation->assigned_agent_id);
     }
 }
