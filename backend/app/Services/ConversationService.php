@@ -14,6 +14,7 @@ final class ConversationService
     ): Collection {
         return Conversation::orderBy($orderBy, $order)
             ->where(['status' => ConversationStatus::WAITING_AGENT->value])
+            ->orWhere(['status' => ConversationStatus::AGENT->value])
             ->with('user')
             ->get();        
     }
