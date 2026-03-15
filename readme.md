@@ -13,7 +13,7 @@ Frontend:
 Backend:
 - Framework: Laravel 12
 - PHP verzió: 8.5
-- Autentikáció: JWT alapú (tymon/jwt-auth), opcionális MFA
+- Autentikáció: JWT alapú (tymon/jwt-auth)
 - Adatbázis: MySQL 8.0
 
 Docker konténerizáció
@@ -46,7 +46,7 @@ php artisan migrate
 # Seedeld az alapadatokat:
 php artisan db:seed
 
-# Tesztek futtatása
+# Futtasd a teszteket:
 php artisan test
 
 # A frontend build-eléséhez és fejlesztői szerver indításához:
