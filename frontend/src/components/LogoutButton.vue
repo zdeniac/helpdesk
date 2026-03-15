@@ -1,6 +1,6 @@
 <template>
   <button @click="logout" class="btn btn-danger btn-sm">
-    <i class="fas fa-sign-out-alt me-1"></i> Logout
+	<i class="fas fa-sign-out-alt me-1"></i> Logout
   </button>
 </template>
 <script>
