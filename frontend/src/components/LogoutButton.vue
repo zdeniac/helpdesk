@@ -9,27 +9,28 @@ import { useRouter } from "vue-router";
 import { API_BASE_URL } from "../config";
 
 export default {
-    setup() {
-        const router = useRouter();
-        const token = localStorage.getItem('token');
+	setup() {
+    	const router = useRouter();
 
-        const logout = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) return;
+    	const logout = async () => {
+		const token = localStorage.getItem('token');
 
-                await axios.post(`${API_BASE_URL}/logout`, null, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+		localStorage.removeItem('token');
 
-                localStorage.removeItem('token');
-                router.push('/login');
-            } catch (err) {
-                console.error('Logout failed', err);
-            }
-        };
-        
-        return { logout };
-  }
+    	try {
+			if (token) {
+				await axios.post(`${API_BASE_URL}/logout`, null, {
+					headers: { Authorization: `Bearer ${token}` }
+				});
+			}
+		} catch (err) {
+			console.warn('Logout request failed, redirecting anyway', err);
+		} finally {
+			router.push('/login');
+		}
+    };
+	
+	return { logout };
+  } 
 }
 </script>
