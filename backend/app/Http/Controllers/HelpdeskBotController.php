@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreHelpdeskMessage;
-use App\Services\HelpdeskBotService;
+use App\Services\HelpdeskService;
 
 class HelpdeskBotController extends Controller
 {
     public function __construct(
-        private readonly HelpdeskBotService $service
+        private readonly HelpdeskService $service
     ) {
     }
 

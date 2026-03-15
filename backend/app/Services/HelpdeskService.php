@@ -10,7 +10,7 @@ use App\Models\HelpdeskArticle;
 use App\Models\HelpdeskMessage;
 use App\DTOs\HelpdeskMessageDTO;
 
-final class HelpdeskBotService
+final class HelpdeskService
 {
     const string DEFAULT_ANSWER = 'Please contact our colleagues.';
 

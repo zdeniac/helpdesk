@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreHelpdeskMessage;
 use App\Services\ConversationService;
-use App\Services\HelpdeskBotService;
+use App\Services\HelpdeskService;
 
 class HelpdeskAgentController extends Controller
 {
     public function __construct(
         private readonly ConversationService $convoService,
-        private readonly HelpdeskBotService $botService
+        private readonly HelpdeskService $helpdeskService
     ) {
     }
 
@@ -21,7 +21,7 @@ class HelpdeskAgentController extends Controller
 
     public function store(StoreHelpdeskMessage $request, string $conversationId)
     {
-        $conversationDTO = $this->botService->replyByAgent(
+        $conversationDTO = $this->helpdeskService->replyByAgent(
             $request->validated('message'),
             $conversationId,
             auth('api')->id(),
@@ -32,12 +32,12 @@ class HelpdeskAgentController extends Controller
 
     public function show(string $id)
     {
-        return response()->json($this->botService->findConversationWithMessages((int) $id));
+        return response()->json($this->helpdeskService->findConversationWithMessages((int) $id));
     }
 
     public function close(string $id)
     {
-        $this->botService->closeConversation((int) $id);
+        $this->helpdeskService->closeConversation((int) $id);
         return response()->noContent();
     }
 }

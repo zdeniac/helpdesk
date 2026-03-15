@@ -10,21 +10,21 @@ use App\Enums\UserRole;
 use App\Models\Conversation;
 use App\Models\HelpdeskArticle;
 use App\Models\User;
-use App\Services\HelpdeskBotService;
+use App\Services\HelpdeskService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class HelpdeskBotServiceTest extends TestCase
+class HelpdeskServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    private readonly HelpdeskBotService $service;
+    private readonly HelpdeskService $service;
     private readonly User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new HelpdeskBotService();
+        $this->service = new HelpdeskService();
         $this->user = User::factory()->create(['role' => UserRole::USER->value]);
     }
 
@@ -68,7 +68,7 @@ class HelpdeskBotServiceTest extends TestCase
         $this->service->startConversation($user->id);
 
         // We are not using the full text search because it is non-deterministic
-        $dto = $this->service->reply('Hello anybody can help me?', $user->id, false);
+        $dto = $this->service->replyByBot('Hello anybody can help me?', $user->id, false);
 
         $this->assertInstanceOf(ConversationDTO::class, $dto);
         $this->assertEquals($user->id, $dto->userId);
@@ -89,9 +89,39 @@ class HelpdeskBotServiceTest extends TestCase
         $user = $this->user;
         
         $this->service->startConversation($user->id);
-        $dto = $this->service->reply('Unknown question', $user->id);
+        $dto = $this->service->replyByBot('Unknown question', $user->id);
 
         $this->assertEquals(ConversationStatus::WAITING_AGENT->value, $dto->status);
-        $this->assertEquals(HelpdeskBotService::DEFAULT_ANSWER, $dto->messages[1]->message);
+        $this->assertEquals(HelpdeskService::DEFAULT_ANSWER, $dto->messages[1]->message);
+    }
+
+    public function test_closes_conversation(): void
+    {
+        $user = $this->user;
+        $conversationDTO = $this->service->startConversation($user->id);
+
+        $conversation = $this->service->closeConversation($conversationDTO->id);
+
+        $this->assertEquals(ConversationStatus::CLOSED->value, $conversation->status);
+    }
+
+    public function test_reply_by_agent_stores_agent_message_and_opens_conversation(): void
+    {
+        $user = $this->user;
+        $conversationDTO = $this->service->startConversation($user->id);
+
+        $agentAnswer = 'Agent here to help';
+        $agent = User::factory()->create(['role' => UserRole::AGENT->value]);
+        
+        $dto = $this->service->replyByAgent($agentAnswer, $conversationDTO->id, $agent->id);
+
+        $this->assertInstanceOf(ConversationDTO::class, $dto);
+        $this->assertCount(1, $dto->messages);
+        $this->assertEquals(HelpdeskMessageSenderType::AGENT->value, $dto->messages[0]->senderType);
+        $this->assertEquals($agentAnswer, $dto->messages[0]->message);
+
+        $conversation = Conversation::find($conversationDTO->id);
+        $this->assertEquals(ConversationStatus::OPEN->value, $conversation->status);
+        $this->assertEquals($agent->id, $conversation->assigned_agent_id);
     }
 }

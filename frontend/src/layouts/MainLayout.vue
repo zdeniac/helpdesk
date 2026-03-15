@@ -7,7 +7,12 @@
             <ul class="navbar-nav">
                 <li class="nav-item" v-if="isUser">
                     <router-link to="/events" class="nav-link">
-                        Eseményeim
+                        Events
+                    </router-link>
+                </li>
+                <li class="nav-item" v-if="!isUser">
+                    <router-link to="/conversations" class="nav-link">
+                        Conversations
                     </router-link>
                 </li>
                 <li class="nav-item" v-if="isUser">

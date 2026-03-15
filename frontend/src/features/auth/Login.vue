@@ -45,6 +45,11 @@
                     <!-- Error message -->
                     <p v-if="error" class="text-danger mt-2">{{ error }}</p>
 
+                    <!-- Forgot password link -->
+                    <p class="mt-2">
+                        <router-link to="/forgot-password">Forgot your password?</router-link>
+                    </p>
+
                 </div>
             </div>
 

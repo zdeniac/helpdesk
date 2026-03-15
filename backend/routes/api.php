@@ -9,11 +9,8 @@ use App\Http\Controllers\PasswordResetController;
 
 Route::group(['middleware' => 'api'], function () {
 
-    Route::post('/password/email', [PasswordResetController::class, 'sendResetLink'])
-        ->name('password.email');
-
-    Route::post('/password/reset', [PasswordResetController::class, 'reset'])
-        ->name('password.reset');
+    Route::post('/password/email', [PasswordResetController::class, 'sendResetLink']);
+    Route::post('/password/reset', [PasswordResetController::class, 'reset']);
 
     // Public routes
     Route::post('/login', [AuthController::class, 'login']);
@@ -35,9 +32,10 @@ Route::group(['middleware' => 'api'], function () {
         // Agent routes (agent controller)
         Route::group(['prefix' => 'agent', 'middleware' => ['role:agent']], function () {
             Route::get('/conversations', [HelpdeskAgentController::class, 'index']);
+            Route::post('/conversations/{id}/close', [HelpdeskAgentController::class, 'close']);
+
             Route::get('/helpdesk/{id}', [HelpdeskAgentController::class, 'show']);
             Route::post('/helpdesk/{id}', [HelpdeskAgentController::class, 'store']);
-            Route::post('/helpdesk/{id}/close', [HelpdeskAgentController::class, 'close']);
         });
     });
 });

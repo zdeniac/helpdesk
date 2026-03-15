@@ -37,6 +37,7 @@ class PasswordResetNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
+        // Front-end route
         $resetUrl = url("/password-reset?token={$this->token}&email={$this->email}");
 
         return (new MailMessage)
