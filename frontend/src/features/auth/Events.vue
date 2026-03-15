@@ -117,7 +117,7 @@ export default {
             const token = localStorage.getItem('token');
             if (!token) return;
             try {
-                const response = await axios.get(`${API_BASE_URL}/api/events`, {
+                const response = await axios.get(`${API_BASE_URL}/events`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 events.value = response.data;
@@ -151,7 +151,7 @@ export default {
 
                 if (editingEvent.value) {
                     // Update
-                    const response = await axios.put(`${API_BASE_URL}/api/events/${editingEvent.value.id}`, newEvent.value, {
+                    const response = await axios.put(`${API_BASE_URL}/events/${editingEvent.value.id}`, newEvent.value, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     // updating the table
@@ -159,7 +159,7 @@ export default {
                     if (index !== -1) events.value.data[index] = response.data.data;
                 } else {
                     // Create
-                    const response = await axios.post(`${API_BASE_URL}/api/events`, newEvent.value, {
+                    const response = await axios.post(`${API_BASE_URL}/events`, newEvent.value, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     events.value.data.push(response.data.data);
@@ -190,7 +190,7 @@ export default {
             if (!confirm('Biztosan törlöd ezt az eseményt?')) return;
 
             try {
-                await axios.delete(`${API_BASE_URL}/api/events/${id}`, {
+                await axios.delete(`${API_BASE_URL}/events/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 events.value.data = events.value.data.filter(e => e.id !== id);
@@ -203,7 +203,7 @@ export default {
 
         return { 
             events, 
-            loading, 
+            loading,
             showForm, 
             newEvent,
             editingEvent,

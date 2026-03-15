@@ -1,8 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router';
+
+import MainLayout from '../layouts/MainLayout.vue';
+
 import Login from '../features/auth/Login.vue';
 import Events from '../features/auth/Events.vue';
 import Conversations from '../features/auth/Conversations.vue';
-import MainLayout from '../layouts/MainLayout.vue';
+import Helpdesk from '../features/auth/Helpdesk.vue';
 
 const routes = [
 	{
@@ -21,6 +24,10 @@ const routes = [
 			{
 				path: '/conversations',
 				component: Conversations
+			},
+			{
+				path: '/helpdesk',
+				component: Helpdesk
 			}
 		],
 	}

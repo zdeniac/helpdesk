@@ -66,7 +66,7 @@ export default {
 
         const login = async () => {
             try {
-                const response = await axios.post(`${API_BASE_URL}/api/login`, {
+                const response = await axios.post(`${API_BASE_URL}/login`, {
                     email: email.value,
                     password: password.value,
                 });

@@ -11,8 +11,8 @@
                     </router-link>
                 </li>
                 <li class="nav-item" v-if="isUser">
-                    <router-link to="/help" class="nav-link">
-                        Segítség
+                    <router-link to="/helpdesk" class="nav-link">
+                        Helpdesk
                     </router-link>
                 </li>
             </ul>
@@ -45,7 +45,7 @@ onMounted(async () => {
     if (!token) return;
 
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/me`, {
+        const response = await axios.get(`${API_BASE_URL}/me`, {
             headers: { Authorization: `Bearer ${token}` }
         });
 
